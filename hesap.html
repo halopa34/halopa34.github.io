@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hesap Satışı - Halopa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #000;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background-color: #121212;
+            color: #fff;
+        }
+
+        .navbar {
+            background-color: #0073e6;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: inline-block;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .account-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+            transition: background-color 0.3s;
+        }
+
+        .dark-mode .account-card {
+            background-color: #1e1e1e;
+        }
+
+        .account-card h3 {
+            margin-top: 0;
+        }
+
+        .dark-mode-toggle {
+            margin: 20px auto;
+            display: block;
+            padding: 10px 20px;
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .dark-mode-toggle:hover {
+            background-color: #005bb5;
+            transform: scale(1.05);
+        }
+
+        .footer {
+            background-color: #222;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .footer.dark-mode {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="index.html">Ana Sayfa</a>
+        <a href="hesap.html">Hesap Satış</a>
+        <a href="sosyal.html">Sosyal Medya</a>
+    </div>
+
+    <div class="container">
+        <h1>Satılık Hesaplar</h1>
+
+        <div class="account-card">
+            <h3>Valorant</h3>
+            <p>60 level skin açılacaktır</p>
+            <p>Fiyat: 100 TL</p>
+        </div>
+
+        <div class="account-card">
+            <h3>Brawl Stars</h3>
+            <p>10 k kupalı hesap</p>
+            <p>Fiyat: 250 TL</p>
+        </div>
+
+        <div class="account-card">
+            <h3>Roblox Hesabı</h3>
+            <p>2022 kuruluş tarihli hesap</p>
+            <p>Fiyat: 550 TL</p>
+        </div>
+
+        <div class="account-card">
+            <h3>pubg mobile</h3>
+            <p>güzel hesaptır</p>
+            <p>Fiyat: 300 TL</p>
+        </div>
+
+        <!-- Daha fazla hesap kartı buraya eklenebilir -->
+
+        <button class="dark-mode-toggle" onclick="toggleDarkMode()">Karanlık Modu Aktif Et</button>
+    </div>
+
+    <div class="footer">
+        © 2025 Halopa. Tüm hakları saklıdır.
+    </div>
+
+    <script>
+        window.onload = function () {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.dark-mode-toggle').textContent = "Karanlık Modu Kapat";
+                document.querySelector('.footer').classList.add('dark-mode');
+            }
+        };
+
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDark = body.classList.toggle('dark-mode');
+            const footer = document.querySelector('.footer');
+
+            if (isDark) {
+                localStorage.setItem('darkMode', 'true');
+                document.querySelector('.dark-mode-toggle').textContent = "Karanlık Modu Kapat";
+                footer.classList.add('dark-mode');
+            } else {
+                localStorage.setItem('darkMode', 'false');
+                document.querySelector('.dark-mode-toggle').textContent = "Karanlık Modu Aktif Et";
+                footer.classList.remove('dark-mode');
+            }
+        }
+    </script>
+
+</body>
+</html>
