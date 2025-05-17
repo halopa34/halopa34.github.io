@@ -1,22 +1,25 @@
+<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mini Labirent Oyunu</title>
 <style>
-  body { margin:0; padding:0; font-family: sans-serif; background: #f0f0f0; }
-  #gameArea { margin: 20px auto; width: 500px; height: 500px; border: 3px solid #333; }
+  body { margin:0; padding:0; font-family: 'Comic Sans MS', cursive, sans-serif; background: linear-gradient(to right, #f0f8ff, #e6f7ff); }
+  h1 { text-align: center; color: #ff5733; text-shadow: 2px 2px #ffd700; }
+  #gameArea { margin: 20px auto; width: 500px; height: 500px; border: 5px double #333; background: #fffbe6; }
   #controls { position: fixed; right: 20px; bottom: 20px; text-align: center; }
   #controls button {
-    width: 40px; height: 40px; margin: 3px;
-    font-size: 20px; font-weight: bold;
+    width: 50px; height: 50px; margin: 4px;
+    font-size: 22px; font-weight: bold; background-color: #ffcc00; border: none; border-radius: 10px;
+    cursor: pointer; box-shadow: 1px 1px 5px #999;
   }
-  #info { text-align: center; margin-top: 10px; }
+  #info { text-align: center; margin-top: 10px; font-size: 18px; color: #333; }
 </style>
 </head>
 <body>
 
-<h1>Mini Labirent Oyunu</h1>
+<h1>✨ Mini Labirent Oyunu ✨</h1>
 
 <div id="info">
   <span>Seviye: <span id="levelDisplay">1</span></span> |
@@ -30,19 +33,17 @@
 
 <!-- Mobil cihazlar için yön tuşları -->
 <div id="controls">
-  <button onclick="moveUp()">&#8593;</button><br>
-  <button onclick="moveLeft()">&#8592;</button>
-  <button onclick="moveRight()">&#8594;</button><br>
-  <button onclick="moveDown()">&#8595;</button>
+  <button onclick="moveUp()">⬆</button><br>
+  <button onclick="moveLeft()">⬅</button>
+  <button onclick="moveRight()">➡</button><br>
+  <button onclick="moveDown()">⬇</button>
 </div>
 
 <script>
-/* Ses efektleri */
 var collisionSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
-var winSound       = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3'); // Kazanma durumunda basit bir bip sesi çalıyor
+var winSound       = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
 var loseSound      = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sad_Trombone-Joe_Lamb-665429450.ogg/Sad_Trombone-Joe_Lamb-665429450.ogg.mp3');
 
-/* Haritalar: 0 = boş, 1 = duvar, 2 = çıkış */
 var maps = [
   [
     "1111111111",
@@ -68,12 +69,12 @@ var maps = [
     "1000000201",
     "1111111111"
   ],
-  [
+  [ // Düzenlenmiş 3. harita: duvar bugu giderildi
     "1111111111",
     "1000110001",
     "1010111101",
     "1000100001",
-    "1111101101",
+    "1011101101",
     "1000100101",
     "1000111101",
     "1010000001",
@@ -175,34 +176,30 @@ var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 var playerX = 1, playerY = 1;
 
-/* Zamanlayıcı: Geçen süreyi güncelle */
 setInterval(function() {
   var elapsed = Math.floor((Date.now() - startTime) / 1000);
   document.getElementById('timeDisplay').textContent = elapsed;
 }, 1000);
 
-/* Haritayı ve oyuncuyu çiz */
 function drawLevel() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   var map = maps[currentLevel];
   for (var y = 0; y < map.length; y++) {
     for (var x = 0; x < map[y].length; x++) {
       if (map[y][x] === '1') {
-        ctx.fillStyle = '#000'; // Duvar
+        ctx.fillStyle = '#333';
       } else if (map[y][x] === '2') {
-        ctx.fillStyle = '#0a0'; // Çıkış (yeşil)
+        ctx.fillStyle = '#00cc44';
       } else {
-        ctx.fillStyle = '#fff'; // Boş alan
+        ctx.fillStyle = '#ffffff';
       }
       ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
     }
   }
-  // Oyuncu kareleri
-  ctx.fillStyle = '#d00';
+  ctx.fillStyle = '#ff3300';
   ctx.fillRect(playerX * tileSize + 5, playerY * tileSize + 5, tileSize - 10, tileSize - 10);
 }
 
-/* Sonraki seviyeye geçiş */
 function nextLevel() {
   currentLevel++;
   if (currentLevel >= maps.length) {
@@ -211,24 +208,20 @@ function nextLevel() {
     return;
   }
   document.getElementById('levelDisplay').textContent = currentLevel + 1;
-  // Oyuncuyu başlangıç noktasına al
   playerX = 1; playerY = 1;
   drawLevel();
 }
 
-/* Oyun Bitti */
 function gameOver() {
   loseSound.play();
   alert('Oyun Bitti!');
   location.reload();
 }
 
-/* Hareket fonksiyonu */
 function move(dx, dy) {
   var map = maps[currentLevel];
   var nx = playerX + dx;
   var ny = playerY + dy;
-  // Duvara çarpma kontrolü
   if (map[ny][nx] === '1') {
     collisionSound.play();
     lives--;
@@ -238,9 +231,7 @@ function move(dx, dy) {
     }
     return;
   }
-  // Hareket et
   playerX = nx; playerY = ny;
-  // Çıkış kontrolü
   if (map[playerY][playerX] === '2') {
     winSound.play();
     alert('Seviye tamamlandı!');
@@ -250,13 +241,11 @@ function move(dx, dy) {
   drawLevel();
 }
 
-/* Yön tuşu fonksiyonları */
 function moveUp()    { move(0, -1); }
 function moveDown()  { move(0, 1); }
 function moveLeft()  { move(-1, 0); }
 function moveRight() { move(1, 0); }
 
-/* Klavye dinleyicisi */
 document.addEventListener('keydown', function(e) {
   switch (e.key) {
     case 'ArrowUp':    moveUp();    break;
@@ -266,7 +255,6 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-/* Başlangıç çizimi */
 document.getElementById('levelDisplay').textContent = currentLevel + 1;
 document.getElementById('livesDisplay').textContent = lives;
 drawLevel();
@@ -274,3 +262,4 @@ drawLevel();
 
 </body>
 </html>
+
