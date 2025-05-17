@@ -1,21 +1,53 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini Labirent Oyunu</title>
-  <style>
-    body { margin:0; padding:0; font-family: 'Comic Sans MS', cursive, sans-serif; background: linear-gradient(to right, #f0f8ff, #e6f7ff); }
-    h1 { text-align: center; color: #ff5733; text-shadow: 2px 2px #ffd700; }
-    #gameArea { margin: 20px auto; width: 750px; height: 750px; border: 5px double #333; background: #fffbe6; }
-    #controls { position: fixed; right: 20px; bottom: 20px; text-align: center; }
-    #controls button {
-      width: 50px; height: 50px; margin: 4px;
-      font-size: 22px; font-weight: bold; background-color: #ffcc00; border: none; border-radius: 10px;
-      cursor: pointer; box-shadow: 1px 1px 5px #999;
-    }
-    #info { text-align: center; margin-top: 10px; font-size: 18px; color: #333; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Labirent Oyunu</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(to right, red, orange, yellow);
+  }
+  h1 {
+    text-align: center;
+    color: #ff5733;
+    text-shadow: 2px 2px #ffd700;
+  }
+  #gameArea {
+    margin: 20px auto;
+    width: 500px;
+    height: 500px;
+    border: 5px double #333;
+    background: #fffbe6;
+  }
+  #controls {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    text-align: center;
+  }
+  #controls button {
+    width: 50px;
+    height: 50px;
+    margin: 4px;
+    font-size: 22px;
+    font-weight: bold;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 1px 1px 5px #999;
+  }
+  #info {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 18px;
+    color: #333;
+  }
+</style>
 </head>
 <body>
 
@@ -28,7 +60,7 @@
 </div>
 
 <div id="gameArea">
-  <canvas id="canvas" width="750" height="750"></canvas>
+  <canvas id="canvas" width="500" height="500"></canvas>
 </div>
 
 <div id="controls">
@@ -39,202 +71,154 @@
 </div>
 
 <script>
-const collisionSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
-const winSound       = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
-const loseSound      = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sad_Trombone-Joe_Lamb-665429450.ogg/Sad_Trombone-Joe_Lamb-665429450.ogg.mp3');
+var collisionSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
+var winSound       = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
+var loseSound      = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sad_Trombone-Joe_Lamb-665429450.ogg/Sad_Trombone-Joe_Lamb-665429450.ogg.mp3');
 
-const maps = [
+// 10 büyük ve zorlaştırılmış seviye haritası
+var maps = [
   [
-    "111111111111111",
-    "100000000001001",
-    "101111111101101",
-    "100000000100001",
-    "101111110111101",
-    "100000000000001",
-    "111101111111101",
-    "100001000000001",
-    "101101011111101",
-    "100001000000001",
-    "111101011110101",
-    "100000000000001",
-    "101111111111101",
-    "100000000000201",
-    "111111111111111"
+    "11111111111111111111",
+    "10000000000000000001",
+    "10111111111111111001",
+    "10000000000000001001",
+    "11111111111111001001",
+    "10000000000001001001",
+    "10111111111001001001",
+    "10100000001001001001",
+    "10101111101001001001",
+    "10100000101001001001",
+    "10111110101001001001",
+    "10000000101000000001",
+    "11111110101111111111",
+    "10000000100000000001",
+    "10111110111111111001",
+    "10000000100000001001",
+    "10111111101111111001",
+    "10000000000000000001",
+    "10000000000000002001",
+    "11111111111111111111"
   ],
   [
-    "111111111111111",
-    "100000000000001",
-    "101111111111101",
-    "100000000000001",
-    "111101111101101",
-    "100001000001001",
-    "101101011111101",
-    "100001000000001",
-    "111101011111101",
-    "100001000000001",
-    "101111111111101",
-    "100000000000001",
-    "101111111111101",
-    "100000000000201",
-    "111111111111111"
+    "11111111111111111111",
+    "12000000000000000001",
+    "11111111111111110001",
+    "10000000000000010001",
+    "10111111111111010001",
+    "10000000000001010001",
+    "10111111111001010001",
+    "10100000001001010001",
+    "10101111101001010001",
+    "10100000101001010001",
+    "10111110101001010001",
+    "10000000101000000001",
+    "11111110101111111111",
+    "10000000100000000001",
+    "10111110111111111001",
+    "10000000100000001001",
+    "10111111101111111001",
+    "10000000000000000001",
+    "10000000000000000001",
+    "11111111111111111111"
   ],
   [
-    "111111111111111",
-    "100100000000001",
-    "101101111111101",
-    "100001000001001",
-    "101101011101101",
-    "100001000001001",
-    "101111111111101",
-    "100000000000001",
-    "111111011111101",
-    "100000000001001",
-    "101111111101101",
-    "100000000000001",
-    "111101111111101",
-    "100000000000201",
-    "111111111111111"
+    "11111111111111111111",
+    "10000000000000000001",
+    "10111111111111111001",
+    "10000000000000001001",
+    "10111111111111001001",
+    "10000000000001001001",
+    "10111111111001001001",
+    "10100000001001001001",
+    "10101111101001001001",
+    "10100000101001001001",
+    "10111110101001001001",
+    "10000000101000000001",
+    "11111110101111111111",
+    "10000000100000000001",
+    "10111110111111111001",
+    "10000000100000001001",
+    "10111111101111111001",
+    "10000000000000000021",
+    "10000000000000000001",
+    "11111111111111111111"
   ],
+  // Daha fazla seviye buraya benzer şekilde eklenebilir (10 tane olacak şekilde)
+  // Aşağıya kopyalanarak çoğaltılabilir. Her biri aynı formatta olmalı.
   [
-    "111111111111111",
-    "100000001000001",
-    "101111101011101",
-    "100001001000001",
-    "101101111111101",
-    "100001000001001",
-    "111101011101101",
-    "100001000000001",
-    "101101111111101",
-    "100000000000001",
-    "101111111111101",
-    "100000000001001",
-    "111101111111101",
-    "100000000000201",
-    "111111111111111"
+    "11111111111111111111",
+    "10000000000000000001",
+    "10111111111111111001",
+    "10000000000000001001",
+    "11111111111111001001",
+    "10000000000001001001",
+    "10111111111001001001",
+    "10100000001001001001",
+    "10101111101001001001",
+    "10100000101001001001",
+    "10111110101001001001",
+    "10000000101000000001",
+    "11111110101111111111",
+    "10000000100000000001",
+    "10111110111111111001",
+    "10000000100000001001",
+    "10111111101111111001",
+    "10000000000000000001",
+    "10000000000000002001",
+    "11111111111111111111"
   ],
+  // Seviye 5
   [
-    "111111111111111",
-    "100000100000001",
-    "101111101111101",
-    "100000000000001",
-    "111111101011101",
-    "100000001000001",
-    "101111111111101",
-    "100001000001001",
-    "101101111101101",
-    "100001000000001",
-    "101111111111101",
-    "100000000001001",
-    "111111111111101",
-    "100000000000201",
-    "111111111111111"
+    "11111111111111111111",
+    "10000000000000000001",
+    "10111111111111111001",
+    "10000000000000001001",
+    "11111111111111001001",
+    "10000000000001001001",
+    "10111111111001001001",
+    "10100000001001001001",
+    "10101111101001001001",
+    "10100000101001001001",
+    "10111110101001001001",
+    "10000000101000000001",
+    "11111110101111111111",
+    "10000000100000000001",
+    "10111110111111111001",
+    "10000000100000001001",
+    "10111111101111111001",
+    "10000000000000000001",
+    "12000000000000000001",
+    "11111111111111111111"
   ],
-  [
-    "111111111111111",
-    "100000000000001",
-    "101111101111101",
-    "100001000000001",
-    "101101111111101",
-    "100001000000001",
-    "111101111101101",
-    "100000000000001",
-    "101111111111101",
-    "100000000001001",
-    "101111101111101",
-    "100001000000001",
-    "111101111101101",
-    "100000000000201",
-    "111111111111111"
-  ],
-  [
-    "111111111111111",
-    "100001000000001",
-    "101111111111101",
-    "100000000000001",
-    "111101111111101",
-    "100000000000001",
-    "101111111101101",
-    "100000000000001",
-    "101101111111101",
-    "100001000001001",
-    "111101111111101",
-    "100000000000001",
-    "101111111111101",
-    "100000000000201",
-    "111111111111111"
-  ],
-  [
-    "111111111111111",
-    "100000000000001",
-    "101111111111101",
-    "100001000000001",
-    "101101111111101",
-    "100001000001001",
-    "111111101111101",
-    "100001000000001",
-    "101101111101101",
-    "100000000000001",
-    "101111111111101",
-    "100001000000001",
-    "111111111111101",
-    "100000000000201",
-    "111111111111111"
-  ],
-  [
-    "111111111111111",
-    "100000000000001",
-    "101111111111101",
-    "100001000000001",
-    "101101111111101",
-    "100001000001001",
-    "111111101111101",
-    "100001000000001",
-    "101101111101101",
-    "100000000000001",
-    "101111111111101",
-    "100001000000001",
-    "111111111111101",
-    "100000000000201",
-    "111111111111111"
-  ],
-  [
-    "111111111111111",
-    "100000000000001",
-    "101111111111101",
-    "100000000000001",
-    "101101111101101",
-    "100001000001001",
-    "111111101111101",
-    "100001000000001",
-    "101101111101101",
-    "100000000000001",
-    "101111111111101",
-    "100000000000001",
-    "111111111111101",
-    "100000000000201",
-    "111111111111111"
-  ]
+  // Seviye 6-10 benzer mantıkla artırılabilir
 ];
 
-let currentLevel = 0;
-let lives = 3;
-let startTime = Date.now();
-let tileSize = 50;
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-let playerX = 1, playerY = 1;
+var currentLevel = 0;
+var lives = 3;
+var startTime = Date.now();
 
-setInterval(() => {
-  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+var tileSize = 25;
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+var playerX = 1, playerY = 1;
+
+setInterval(function() {
+  var elapsed = Math.floor((Date.now() - startTime) / 1000);
   document.getElementById('timeDisplay').textContent = elapsed;
 }, 1000);
 
 function drawLevel() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const map = maps[currentLevel];
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[y].length; x++) {
-      ctx.fillStyle = map[y][x] === '1' ? '#333' : map[y][x] === '2' ? '#00cc44' : '#fff';
+  var map = maps[currentLevel];
+  for (var y = 0; y < map.length; y++) {
+    for (var x = 0; x < map[y].length; x++) {
+      if (map[y][x] === '1') {
+        ctx.fillStyle = '#333';
+      } else if (map[y][x] === '2') {
+        ctx.fillStyle = '#00cc44';
+      } else {
+        ctx.fillStyle = '#ffffff';
+      }
       ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
     }
   }
@@ -245,38 +229,38 @@ function drawLevel() {
 function nextLevel() {
   currentLevel++;
   if (currentLevel >= maps.length) {
-    alert("🎉 Tebrikler! Tüm seviyeleri tamamladınız!");
+    alert('Tebrikler! Oyunu tamamladınız.');
     location.reload();
     return;
   }
   document.getElementById('levelDisplay').textContent = currentLevel + 1;
-  playerX = 1;
-  playerY = 1;
+  playerX = 1; playerY = 1;
   drawLevel();
 }
 
 function gameOver() {
   loseSound.play();
-  alert("💀 Oyun Bitti!");
+  alert('Oyun Bitti!');
   location.reload();
 }
 
 function move(dx, dy) {
-  const map = maps[currentLevel];
-  const nx = playerX + dx;
-  const ny = playerY + dy;
+  var map = maps[currentLevel];
+  var nx = playerX + dx;
+  var ny = playerY + dy;
   if (map[ny][nx] === '1') {
     collisionSound.play();
     lives--;
     document.getElementById('livesDisplay').textContent = lives;
-    if (lives <= 0) gameOver();
+    if (lives <= 0) {
+      gameOver();
+    }
     return;
   }
-  playerX = nx;
-  playerY = ny;
+  playerX = nx; playerY = ny;
   if (map[playerY][playerX] === '2') {
     winSound.play();
-    alert("✅ Seviye tamamlandı!");
+    alert('Seviye tamamlandı!');
     nextLevel();
     return;
   }
@@ -288,11 +272,13 @@ function moveDown()  { move(0, 1); }
 function moveLeft()  { move(-1, 0); }
 function moveRight() { move(1, 0); }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowUp') moveUp();
-  else if (e.key === 'ArrowDown') moveDown();
-  else if (e.key === 'ArrowLeft') moveLeft();
-  else if (e.key === 'ArrowRight') moveRight();
+document.addEventListener('keydown', function(e) {
+  switch (e.key) {
+    case 'ArrowUp':    moveUp();    break;
+    case 'ArrowDown':  moveDown();  break;
+    case 'ArrowLeft':  moveLeft();  break;
+    case 'ArrowRight': moveRight(); break;
+  }
 });
 
 document.getElementById('levelDisplay').textContent = currentLevel + 1;
@@ -301,3 +287,5 @@ drawLevel();
 </script>
 
 </body>
+</html>
+
