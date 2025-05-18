@@ -1,68 +1,65 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mini Labirent Oyunu</title>
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       font-family: 'Comic Sans MS', cursive, sans-serif;
       background: linear-gradient(to right, red, orange, yellow);
+      height: 100%;
+      overflow: hidden;
     }
     h1 {
       text-align: center;
-      color: #ff5733;
-      text-shadow: 2px 2px #ffd700;
+      color: #fff;
+      text-shadow: 2px 2px #000;
     }
     #gameArea {
-      margin: 20px auto;
-      width: 500px;
-      height: 500px;
-      border: 5px double #333;
-      background: #fffbe6;
+      width: 100vw;
+      height: calc(100vw);
+      max-height: calc(100vh - 140px);
+      margin: auto;
+    }
+    #canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
     #controls {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
       text-align: center;
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
     }
     #controls button {
-      width: 50px;
-      height: 50px;
-      margin: 4px;
-      font-size: 22px;
-      font-weight: bold;
-      background-color: #ffcc00;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 1px 1px 5px #999;
+      width: 50px; height: 50px; margin: 4px;
+      font-size: 22px; font-weight: bold; background-color: #ffcc00; border: none; border-radius: 10px;
+      cursor: pointer; box-shadow: 1px 1px 5px #999;
     }
     #info {
       text-align: center;
-      margin-top: 10px;
       font-size: 18px;
-      color: #333;
+      color: #fff;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
 
 <h1>✨ Mini Labirent Oyunu ✨</h1>
-
 <div id="info">
-  <span>Seviye: <span id="levelDisplay">1</span></span> |
-  <span>Kalan Can: <span id="livesDisplay">3</span></span> |
-  <span>Geçen Süre: <span id="timeDisplay">0</span>s</span>
+  Seviye: <span id="levelDisplay">1</span> |
+  Can: <span id="livesDisplay">3</span> |
+  Süre: <span id="timeDisplay">0</span>s
 </div>
-
 <div id="gameArea">
-  <canvas id="canvas" width="500" height="500"></canvas>
+  <canvas id="canvas" width="800" height="800"></canvas>
 </div>
-
 <div id="controls">
   <button onclick="moveUp()">⬆</button><br>
   <button onclick="moveLeft()">⬅</button>
@@ -71,82 +68,58 @@
 </div>
 
 <script>
-var collisionSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
-var winSound       = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
-var loseSound      = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sad_Trombone-Joe_Lamb-665429450.ogg/Sad_Trombone-Joe_Lamb-665429450.ogg.mp3');
+const collisionSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
+const winSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
+const loseSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sad_Trombone-Joe_Lamb-665429450.ogg/Sad_Trombone-Joe_Lamb-665429450.ogg.mp3');
 
-// 20 SEVİYE
-var maps = [
-  // İlk 10 seviye senin gönderdiğin koddan alınmıştır (kısaltıldı)
+const maps = [
   [
-    "1111111111", "1000000001", "1000000001", "1000000001", "1000000001",
-    "1000000001", "1000000001", "1000000201", "1000000001", "1111111111"
-  ],
-  // ... diğer 9 seviye burada ...
-  [
-    "1111111111", "1000000101", "1011111101", "1000010001", "1111011101",
-    "1000010001", "1010010001", "1000000001", "1000000201", "1111111111"
-  ],
-  // 11-20 seviye zorluk arttırılmış olarak eklenmiştir
-  [
-    "1111111111", "1000000001", "1011111111", "1000000001", "1111111101",
-    "1000000001", "1111111101", "1000000001", "1000000201", "1111111111"
-  ],
-  [
-    "1111111111", "1010101001", "1000101001", "1010101001", "1000101001",
-    "1010101001", "1000101001", "1010101001", "1000000201", "1111111111"
-  ],
-  [
-    "1111111111", "1000000001", "1011111101", "1000000001", "1110111111",
-    "1000100001", "1011101101", "1000000001", "1000000201", "1111111111"
-  ],
-  [
-    "1111111111", "1001001001", "1011011011", "1001001001", "1111111111",
-    "1000000001", "1011111101", "1000000001", "1000000201", "1111111111"
-  ],
-  [
-    "1111111111", "1000000001", "1011111101", "1000000001", "1011111101",
-    "1000000001", "1111111111", "1000000001", "1000000201", "1111111111"
-  ],
-  [
-    "1111111111", "1011111111", "1000000001", "1110111111", "1000000001",
-    "1011111111", "1000000001", "1011111111", "1000000201", "1111111111"
-  ],
-  [
-    "1111111111", "1000000101", "1011111101", "1000000001", "1111111101",
-    "1000000001", "1111111101", "1000000001", "1000000201", "1111111111"
-  ],
-  [
-    "1111111111", "1010101011", "1010101011", "1010101011", "1010101011",
-    "1010101011", "1010101011", "1010101011", "1000000201", "1111111111"
+    "11111111111111111111",
+    "10000000000000000001",
+    "10111111111111111001",
+    "10000000000000001001",
+    "10111111111111001001",
+    "10100000000001001001",
+    "10101111111001001001",
+    "10101000001001001001",
+    "10101011101001001001",
+    "10101010001001001001",
+    "10101010111001001001",
+    "10101010100001001001",
+    "10101010101111001001",
+    "10101010100000001001",
+    "10101010111111111001",
+    "10101010000000000001",
+    "10101011111111111001",
+    "10000000000000000021",
+    "11111111111111111111",
+    "11111111111111111111"
   ]
+  // Devamı: 19 seviye daha eklenecek
 ];
 
-var currentLevel = 0;
-var lives = 3;
-var startTime = Date.now();
+let currentLevel = 0;
+let lives = 3;
+let tileSize = 40;
+let canvas = document.getElementById('canvas');
+let ctx = canvas.getContext('2d');
+let playerX = 1, playerY = 1;
+let startTime = Date.now();
 
-var tileSize = 50;
-var canvas = document.getElementById('canvas');
-var ctx = canvas.getContext('2d');
-var playerX = 1, playerY = 1;
-
-setInterval(function() {
-  var elapsed = Math.floor((Date.now() - startTime) / 1000);
-  document.getElementById('timeDisplay').textContent = elapsed;
+setInterval(() => {
+  document.getElementById('timeDisplay').textContent = Math.floor((Date.now() - startTime) / 1000);
 }, 1000);
 
 function drawLevel() {
+  const map = maps[currentLevel];
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  var map = maps[currentLevel];
-  for (var y = 0; y < map.length; y++) {
-    for (var x = 0; x < map[y].length; x++) {
-      if (map[y][x] === '1') {
-        ctx.fillStyle = '#333';
-      } else if (map[y][x] === '2') {
-        ctx.fillStyle = '#00cc44';
-      } else {
-        ctx.fillStyle = '#ffffff';
+  for (let y = 0; y < map.length; y++) {
+    for (let x = 0; x < map[y].length; x++) {
+      switch (map[y][x]) {
+        case '1': ctx.fillStyle = '#333'; break; // Duvar
+        case '2': ctx.fillStyle = '#00cc44'; break; // Çıkış
+        case '3': ctx.fillStyle = '#ffdd00'; break; // Muz (engel)
+        default: ctx.fillStyle = '#ffffff'; break; // Yol
       }
       ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
     }
@@ -155,53 +128,58 @@ function drawLevel() {
   ctx.fillRect(playerX * tileSize + 5, playerY * tileSize + 5, tileSize - 10, tileSize - 10);
 }
 
-function nextLevel() {
-  currentLevel++;
-  if (currentLevel >= maps.length) {
-    alert('🎉 Tebrikler! Tüm seviyeleri tamamladınız.');
-    location.reload();
-    return;
-  }
-  document.getElementById('levelDisplay').textContent = currentLevel + 1;
-  playerX = 1;
-  playerY = 1;
-  drawLevel();
-}
-
-function gameOver() {
-  loseSound.play();
-  alert('💥 Oyun Bitti!');
-  location.reload();
-}
-
 function move(dx, dy) {
-  var map = maps[currentLevel];
-  var nx = playerX + dx;
-  var ny = playerY + dy;
+  const map = maps[currentLevel];
+  let nx = playerX + dx;
+  let ny = playerY + dy;
   if (map[ny][nx] === '1') {
     collisionSound.play();
     lives--;
     document.getElementById('livesDisplay').textContent = lives;
-    if (lives <= 0) {
-      gameOver();
-    }
+    if (lives <= 0) gameOver();
     return;
+  }
+  if (map[ny][nx] === '3') {
+    collisionSound.play();
+    lives--;
+    alert('Muz engeline çarptın!');
+    document.getElementById('livesDisplay').textContent = lives;
+    if (lives <= 0) gameOver();
   }
   playerX = nx;
   playerY = ny;
-  if (map[playerY][playerX] === '2') {
+  if (map[ny][nx] === '2') {
     winSound.play();
-    alert('✅ Seviye tamamlandı!');
+    alert('Seviye tamamlandı!');
     nextLevel();
     return;
   }
   drawLevel();
 }
 
-function moveUp() { move(0, -1); }
-function moveDown() { move(0, 1); }
-function moveLeft() { move(-1, 0); }
-function moveRight() { move(1, 0); }
+function moveUp()    { move(0, -1); }
+function moveDown()  { move(0, 1);  }
+function moveLeft()  { move(-1, 0); }
+function moveRight() { move(1, 0);  }
+
+function nextLevel() {
+  currentLevel++;
+  if (currentLevel >= maps.length) {
+    alert('Tebrikler! Tüm seviyeleri tamamladınız.');
+    location.reload();
+    return;
+  }
+  playerX = 1;
+  playerY = 1;
+  document.getElementById('levelDisplay').textContent = currentLevel + 1;
+  drawLevel();
+}
+
+function gameOver() {
+  loseSound.play();
+  alert('Oyun Bitti!');
+  location.reload();
+}
 
 document.addEventListener('keydown', function(e) {
   switch (e.key) {
@@ -219,4 +197,3 @@ drawLevel();
 
 </body>
 </html>
-
