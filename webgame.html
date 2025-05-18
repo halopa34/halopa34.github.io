@@ -10,34 +10,39 @@
     padding: 0;
     font-family: 'Comic Sans MS', cursive, sans-serif;
     background: linear-gradient(to right, red, orange, yellow);
+    text-align: center;
   }
   h1 {
-    text-align: center;
-    color: #fff;
-    text-shadow: 2px 2px #000;
+    color: #ff5733;
+    text-shadow: 2px 2px #ffd700;
+    margin: 10px 0;
+  }
+  #info {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
   }
   #gameArea {
-    margin: 10px auto;
-    width: 100vw;
+    margin: 0 auto;
+    width: 90vw;
     max-width: 600px;
-    height: 100vw;
-    max-height: 600px;
-    border: 5px double #333;
     background: #fffbe6;
     position: relative;
   }
+  #canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 4px double #333;
+  }
   #controls {
-    position: fixed;
-    right: 10px;
-    bottom: 10px;
-    text-align: center;
-    z-index: 99;
+    margin-top: 10px;
   }
   #controls button {
-    width: 50px;
-    height: 50px;
-    margin: 4px;
-    font-size: 22px;
+    width: 60px;
+    height: 60px;
+    margin: 5px;
+    font-size: 24px;
     font-weight: bold;
     background-color: #ffcc00;
     border: none;
@@ -45,37 +50,21 @@
     cursor: pointer;
     box-shadow: 1px 1px 5px #999;
   }
-  #info {
-    text-align: center;
-    font-size: 16px;
-    color: #000;
-    margin-bottom: 4px;
-  }
-  #signature {
-    position: absolute;
-    bottom: 2px;
-    right: 5px;
-    font-size: 10px;
-    color: #888;
-  }
 </style>
 </head>
 <body>
 
 <h1>✨ Mini Labirent Oyunu ✨</h1>
-
 <div id="info">
   Seviye: <span id="levelDisplay">1</span> |
   Can: <span id="livesDisplay">3</span> |
   Süre: <span id="timeDisplay">0</span>s |
   Puan: <span id="scoreDisplay">0</span>
 </div>
-
 <div id="gameArea">
-  <canvas id="canvas"></canvas>
-  <div id="signature">By.Halopa34</div>
+  <canvas id="canvas" width="600" height="600"></canvas>
+  <div style="position:absolute; bottom:5px; right:10px; color:white; font-weight:bold;">By.Halopa34</div>
 </div>
-
 <div id="controls">
   <button onclick="moveUp()">⬆</button><br>
   <button onclick="moveLeft()">⬅</button>
@@ -84,77 +73,52 @@
 </div>
 
 <script>
-const tileSize = 30;
-const gridSize = 15;
+const tileSize = 40;
 const canvas = document.getElementById('canvas');
-canvas.width = tileSize * gridSize;
-canvas.height = tileSize * gridSize;
 const ctx = canvas.getContext('2d');
-
+const levelSize = 15;
 let playerX = 1, playerY = 1;
 let currentLevel = 0;
 let lives = 3;
 let score = 0;
 let startTime = Date.now();
 
-const collisionSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
-const winSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
-const loseSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sad_Trombone-Joe_Lamb-665429450.ogg/Sad_Trombone-Joe_Lamb-665429450.ogg.mp3');
-
-const maps = [
-  // 20 tane 15x15 zorlu seviye örnek olarak 2-3 tanesi yazıldı, devamı eklenebilir
+const levels = [
+  // Sadece 1 seviye örnek, devamı eklenebilir (20 adet olacak)
   [
     "111111111111111",
     "100000000000001",
     "101111111111101",
-    "101000000000101",
-    "101011111110101",
-    "101010000010101",
-    "101010111010101",
-    "101010100010101",
-    "101010111110101",
-    "101010000000101",
-    "101011111111101",
-    "101000000000001",
-    "101111111111101",
-    "100000000000201",
-    "111111111111111"
-  ],
-  [
-    "111111111111111",
-    "100000000000001",
-    "111111111111101",
     "100000000000001",
     "101111111110101",
-    "101000000010101",
-    "101011111010101",
-    "101010001010101",
-    "101010111010101",
-    "101000000010101",
-    "101111111010101",
     "100000000010001",
+    "111111011010111",
+    "100000010000001",
+    "101110111111101",
+    "100010000000001",
+    "101011111111101",
+    "100010000000001",
     "101111111110101",
-    "100000000000201",
+    "100000000020001",
     "111111111111111"
-  ],
-  // Devamı buraya eklenir...
+  ]
 ];
 
+setInterval(() => {
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  document.getElementById('timeDisplay').textContent = elapsed;
+}, 1000);
+
 function drawLevel() {
+  const map = levels[currentLevel];
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  let map = maps[currentLevel];
-  for (let y = 0; y < gridSize; y++) {
-    for (let x = 0; x < gridSize; x++) {
-      const tile = map[y][x];
-      if (tile === '1') {
-        ctx.fillStyle = '#000';
-      } else if (tile === '2') {
-        ctx.fillStyle = '#00cc44';
-      } else {
-        ctx.fillStyle = '#fff';
-      }
+  for (let y = 0; y < levelSize; y++) {
+    for (let x = 0; x < levelSize; x++) {
+      let tile = map[y][x];
+      ctx.fillStyle = tile === '1' ? '#000' : tile === '2' ? '#0c0' : '#fff';
       ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-      if (tile === 'M') {
+
+      if (tile === 'E') { // Engel (muz vs.)
         ctx.fillStyle = 'yellow';
         ctx.beginPath();
         ctx.arc(x * tileSize + tileSize/2, y * tileSize + tileSize/2, tileSize/3, 0, Math.PI * 2);
@@ -162,54 +126,39 @@ function drawLevel() {
       }
     }
   }
-  ctx.fillStyle = '#ff3300';
+  ctx.fillStyle = '#f00';
   ctx.fillRect(playerX * tileSize + 5, playerY * tileSize + 5, tileSize - 10, tileSize - 10);
 }
 
-function updateStats() {
-  document.getElementById('levelDisplay').textContent = currentLevel + 1;
-  document.getElementById('livesDisplay').textContent = lives;
-  document.getElementById('scoreDisplay').textContent = score;
-}
-
 function move(dx, dy) {
-  const map = maps[currentLevel];
+  const map = levels[currentLevel];
   const nx = playerX + dx;
   const ny = playerY + dy;
-  const tile = map[ny][nx];
-  if (tile === '1') {
-    collisionSound.play();
+  if (map[ny][nx] === '1') {
     lives--;
-    updateStats();
-    if (lives <= 0) {
-      loseSound.play();
-      alert('Oyun bitti!');
-      location.reload();
-    }
+    if (lives <= 0) return gameOver();
+    document.getElementById('livesDisplay').textContent = lives;
     return;
+  }
+  if (map[ny][nx] === 'E') {
+    lives--;
+    if (lives <= 0) return gameOver();
+    document.getElementById('livesDisplay').textContent = lives;
   }
   playerX = nx;
   playerY = ny;
-  if (tile === '2') {
+  if (map[ny][nx] === '2') {
     score += 10;
-    winSound.play();
-    alert('Seviye tamamlandı!');
-    nextLevel();
-    return;
+    currentLevel++;
+    if (currentLevel >= levels.length) {
+      alert("Tebrikler, tüm seviyeleri tamamladın!");
+      return location.reload();
+    }
+    document.getElementById('levelDisplay').textContent = currentLevel + 1;
+    document.getElementById('scoreDisplay').textContent = score;
+    playerX = 1;
+    playerY = 1;
   }
-  drawLevel();
-}
-
-function nextLevel() {
-  currentLevel++;
-  if (currentLevel >= maps.length) {
-    alert('Tebrikler! Tüm seviyeleri tamamladınız.');
-    location.reload();
-    return;
-  }
-  playerX = 1;
-  playerY = 1;
-  updateStats();
   drawLevel();
 }
 
@@ -218,24 +167,23 @@ function moveDown() { move(0, 1); }
 function moveLeft() { move(-1, 0); }
 function moveRight() { move(1, 0); }
 
-document.addEventListener('keydown', function(e) {
-  switch (e.key) {
-    case 'ArrowUp': moveUp(); break;
-    case 'ArrowDown': moveDown(); break;
-    case 'ArrowLeft': moveLeft(); break;
-    case 'ArrowRight': moveRight(); break;
-  }
+function gameOver() {
+  alert("Oyun Bitti! Puan: " + score);
+  location.reload();
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowUp') moveUp();
+  else if (e.key === 'ArrowDown') moveDown();
+  else if (e.key === 'ArrowLeft') moveLeft();
+  else if (e.key === 'ArrowRight') moveRight();
 });
 
-setInterval(() => {
-  const elapsed = Math.floor((Date.now() - startTime) / 1000);
-  document.getElementById('timeDisplay').textContent = elapsed;
-}, 1000);
-
+document.getElementById('levelDisplay').textContent = currentLevel + 1;
+document.getElementById('livesDisplay').textContent = lives;
+document.getElementById('scoreDisplay').textContent = score;
 drawLevel();
-updateStats();
 </script>
 
 </body>
 </html>
-
