@@ -1,65 +1,81 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini Labirent Oyunu</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-      background: linear-gradient(to right, red, orange, yellow);
-      height: 100%;
-      overflow: hidden;
-    }
-    h1 {
-      text-align: center;
-      color: #fff;
-      text-shadow: 2px 2px #000;
-    }
-    #gameArea {
-      width: 100vw;
-      height: calc(100vw);
-      max-height: calc(100vh - 140px);
-      margin: auto;
-    }
-    #canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    #controls {
-      text-align: center;
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    #controls button {
-      width: 50px; height: 50px; margin: 4px;
-      font-size: 22px; font-weight: bold; background-color: #ffcc00; border: none; border-radius: 10px;
-      cursor: pointer; box-shadow: 1px 1px 5px #999;
-    }
-    #info {
-      text-align: center;
-      font-size: 18px;
-      color: #fff;
-      margin-top: 5px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Labirent Oyunu</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(to right, red, orange, yellow);
+  }
+  h1 {
+    text-align: center;
+    color: #fff;
+    text-shadow: 2px 2px #000;
+  }
+  #gameArea {
+    margin: 10px auto;
+    width: 100vw;
+    max-width: 600px;
+    height: 100vw;
+    max-height: 600px;
+    border: 5px double #333;
+    background: #fffbe6;
+    position: relative;
+  }
+  #controls {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    text-align: center;
+    z-index: 99;
+  }
+  #controls button {
+    width: 50px;
+    height: 50px;
+    margin: 4px;
+    font-size: 22px;
+    font-weight: bold;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 1px 1px 5px #999;
+  }
+  #info {
+    text-align: center;
+    font-size: 16px;
+    color: #000;
+    margin-bottom: 4px;
+  }
+  #signature {
+    position: absolute;
+    bottom: 2px;
+    right: 5px;
+    font-size: 10px;
+    color: #888;
+  }
+</style>
 </head>
 <body>
 
 <h1>✨ Mini Labirent Oyunu ✨</h1>
+
 <div id="info">
   Seviye: <span id="levelDisplay">1</span> |
   Can: <span id="livesDisplay">3</span> |
-  Süre: <span id="timeDisplay">0</span>s
+  Süre: <span id="timeDisplay">0</span>s |
+  Puan: <span id="scoreDisplay">0</span>
 </div>
+
 <div id="gameArea">
-  <canvas id="canvas" width="800" height="800"></canvas>
+  <canvas id="canvas"></canvas>
+  <div id="signature">By.Halopa34</div>
 </div>
+
 <div id="controls">
   <button onclick="moveUp()">⬆</button><br>
   <button onclick="moveLeft()">⬅</button>
@@ -68,87 +84,114 @@
 </div>
 
 <script>
+const tileSize = 30;
+const gridSize = 15;
+const canvas = document.getElementById('canvas');
+canvas.width = tileSize * gridSize;
+canvas.height = tileSize * gridSize;
+const ctx = canvas.getContext('2d');
+
+let playerX = 1, playerY = 1;
+let currentLevel = 0;
+let lives = 3;
+let score = 0;
+let startTime = Date.now();
+
 const collisionSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
 const winSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f9/Beep_example.ogg/Beep_example.ogg.mp3');
 const loseSound = new Audio('https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sad_Trombone-Joe_Lamb-665429450.ogg/Sad_Trombone-Joe_Lamb-665429450.ogg.mp3');
 
 const maps = [
+  // 20 tane 15x15 zorlu seviye örnek olarak 2-3 tanesi yazıldı, devamı eklenebilir
   [
-    "11111111111111111111",
-    "10000000000000000001",
-    "10111111111111111001",
-    "10000000000000001001",
-    "10111111111111001001",
-    "10100000000001001001",
-    "10101111111001001001",
-    "10101000001001001001",
-    "10101011101001001001",
-    "10101010001001001001",
-    "10101010111001001001",
-    "10101010100001001001",
-    "10101010101111001001",
-    "10101010100000001001",
-    "10101010111111111001",
-    "10101010000000000001",
-    "10101011111111111001",
-    "10000000000000000021",
-    "11111111111111111111",
-    "11111111111111111111"
-  ]
-  // Devamı: 19 seviye daha eklenecek
+    "111111111111111",
+    "100000000000001",
+    "101111111111101",
+    "101000000000101",
+    "101011111110101",
+    "101010000010101",
+    "101010111010101",
+    "101010100010101",
+    "101010111110101",
+    "101010000000101",
+    "101011111111101",
+    "101000000000001",
+    "101111111111101",
+    "100000000000201",
+    "111111111111111"
+  ],
+  [
+    "111111111111111",
+    "100000000000001",
+    "111111111111101",
+    "100000000000001",
+    "101111111110101",
+    "101000000010101",
+    "101011111010101",
+    "101010001010101",
+    "101010111010101",
+    "101000000010101",
+    "101111111010101",
+    "100000000010001",
+    "101111111110101",
+    "100000000000201",
+    "111111111111111"
+  ],
+  // Devamı buraya eklenir...
 ];
 
-let currentLevel = 0;
-let lives = 3;
-let tileSize = 40;
-let canvas = document.getElementById('canvas');
-let ctx = canvas.getContext('2d');
-let playerX = 1, playerY = 1;
-let startTime = Date.now();
-
-setInterval(() => {
-  document.getElementById('timeDisplay').textContent = Math.floor((Date.now() - startTime) / 1000);
-}, 1000);
-
 function drawLevel() {
-  const map = maps[currentLevel];
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[y].length; x++) {
-      switch (map[y][x]) {
-        case '1': ctx.fillStyle = '#333'; break; // Duvar
-        case '2': ctx.fillStyle = '#00cc44'; break; // Çıkış
-        case '3': ctx.fillStyle = '#ffdd00'; break; // Muz (engel)
-        default: ctx.fillStyle = '#ffffff'; break; // Yol
+  let map = maps[currentLevel];
+  for (let y = 0; y < gridSize; y++) {
+    for (let x = 0; x < gridSize; x++) {
+      const tile = map[y][x];
+      if (tile === '1') {
+        ctx.fillStyle = '#000';
+      } else if (tile === '2') {
+        ctx.fillStyle = '#00cc44';
+      } else {
+        ctx.fillStyle = '#fff';
       }
       ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+      if (tile === 'M') {
+        ctx.fillStyle = 'yellow';
+        ctx.beginPath();
+        ctx.arc(x * tileSize + tileSize/2, y * tileSize + tileSize/2, tileSize/3, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
   ctx.fillStyle = '#ff3300';
   ctx.fillRect(playerX * tileSize + 5, playerY * tileSize + 5, tileSize - 10, tileSize - 10);
 }
 
+function updateStats() {
+  document.getElementById('levelDisplay').textContent = currentLevel + 1;
+  document.getElementById('livesDisplay').textContent = lives;
+  document.getElementById('scoreDisplay').textContent = score;
+}
+
 function move(dx, dy) {
   const map = maps[currentLevel];
-  let nx = playerX + dx;
-  let ny = playerY + dy;
-  if (map[ny][nx] === '1') {
+  const nx = playerX + dx;
+  const ny = playerY + dy;
+  const tile = map[ny][nx];
+  if (tile === '1') {
     collisionSound.play();
     lives--;
-    document.getElementById('livesDisplay').textContent = lives;
-    if (lives <= 0) gameOver();
+    updateStats();
+    if (lives <= 0) {
+      loseSound.play();
+      alert('Oyun bitti!');
+      location.reload();
+    }
     return;
-  }
-  if (map[ny][nx] === '3') {
-    collisionSound.play();
-    lives--;
-    alert('Muz engeline çarptın!');
-    document.getElementById('livesDisplay').textContent = lives;
-    if (lives <= 0) gameOver();
   }
   playerX = nx;
   playerY = ny;
-  if (map[ny][nx] === '2') {
+  if (tile === '2') {
+    score += 10;
     winSound.play();
     alert('Seviye tamamlandı!');
     nextLevel();
@@ -156,11 +199,6 @@ function move(dx, dy) {
   }
   drawLevel();
 }
-
-function moveUp()    { move(0, -1); }
-function moveDown()  { move(0, 1);  }
-function moveLeft()  { move(-1, 0); }
-function moveRight() { move(1, 0);  }
 
 function nextLevel() {
   currentLevel++;
@@ -171,15 +209,14 @@ function nextLevel() {
   }
   playerX = 1;
   playerY = 1;
-  document.getElementById('levelDisplay').textContent = currentLevel + 1;
+  updateStats();
   drawLevel();
 }
 
-function gameOver() {
-  loseSound.play();
-  alert('Oyun Bitti!');
-  location.reload();
-}
+function moveUp() { move(0, -1); }
+function moveDown() { move(0, 1); }
+function moveLeft() { move(-1, 0); }
+function moveRight() { move(1, 0); }
 
 document.addEventListener('keydown', function(e) {
   switch (e.key) {
@@ -190,10 +227,15 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-document.getElementById('levelDisplay').textContent = currentLevel + 1;
-document.getElementById('livesDisplay').textContent = lives;
+setInterval(() => {
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  document.getElementById('timeDisplay').textContent = elapsed;
+}, 1000);
+
 drawLevel();
+updateStats();
 </script>
 
 </body>
 </html>
+
