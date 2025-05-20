@@ -1,44 +1,44 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SiberBiz | Giriş & Kayıt</title>
   <style>
+    :root {
+      --bg-color: rgba(0, 0, 0, 0.75);
+      --text-color: white;
+      --button-color: #00ffff;
+    }
+
+    body.light {
+      --bg-color: rgba(255, 255, 255, 0.9);
+      --text-color: black;
+      --button-color: #0077ff;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: url('625ced2c-546d-4886-9376-729cfbe40a06.png') no-repeat center center fixed;
+      background: url('spy.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
-      transition: background 0.5s, color 0.5s;
-    }
-
-    .light {
-      background: #f0f0f0 url('625ced2c-546d-4886-9376-729cfbe40a06.png') no-repeat center center fixed;
-      background-size: cover;
-      color: black;
+      color: var(--text-color);
+      transition: all 0.3s ease;
     }
 
     .container {
       max-width: 400px;
       margin: 60px auto;
       padding: 30px;
-      background-color: rgba(0, 0, 0, 0.75);
+      background-color: var(--bg-color);
       border-radius: 10px;
       text-align: center;
-      transition: background-color 0.5s, box-shadow 0.5s;
-    }
-
-    .light .container {
-      background-color: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 0 15px #999;
     }
 
     h1 {
       margin-bottom: 20px;
       font-size: 32px;
-      color: #00ffff;
+      color: var(--button-color);
     }
 
     input[type="text"],
@@ -53,7 +53,7 @@
     }
 
     button {
-      background-color: #00ffff;
+      background-color: var(--button-color);
       color: black;
       padding: 10px 20px;
       border: none;
@@ -83,70 +83,67 @@
       margin-right: 5px;
     }
 
-    .theme-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: black;
-      color: #00ffff;
-      padding: 5px 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      border: 1px solid #00ffff;
-    }
-
-    .light .toggle-link,
-    .light .show-password {
-      color: #444;
-    }
-
-    .light .theme-toggle {
-      background: #333;
-      color: white;
-    }
-
     #profile-preview {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
+      margin: 10px auto;
       object-fit: cover;
       border-radius: 50%;
-      margin: 10px auto;
+      border: 2px solid var(--button-color);
       display: none;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: var(--button-color);
+      color: black;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
     }
   </style>
 </head>
-<body>
-  <button class="theme-toggle" onclick="toggleTheme()">🌙 / ☀️</button>
+<body class="dark">
 
+  <button class="theme-toggle" onclick="toggleTheme()">🌗 Tema</button>
+
+  <!-- Giriş Formu -->
   <div class="container" id="login-container">
     <h1>SiberBiz</h1>
-    <input type="text" placeholder="Kullanıcı Adı" id="login-username">
-    <input type="password" placeholder="Şifre" id="login-password">
+    <input type="text" placeholder="Kullanıcı Adı" id="login-username" />
+    <input type="password" placeholder="Şifre" id="login-password" />
     <div class="show-password">
-      <input type="checkbox" onclick="togglePassword('login-password')"> Şifreyi Göster
+      <input type="checkbox" onclick="togglePassword('login-password')" /> Şifreyi Göster
     </div>
     <button onclick="login()">Giriş Yap</button>
     <span class="toggle-link" onclick="toggleForm()">Hesabınız yok mu? Kayıt olun</span>
   </div>
 
+  <!-- Kayıt Formu -->
   <div class="container" id="register-container" style="display: none;">
     <h1>SiberBiz</h1>
-    <input type="text" placeholder="Kullanıcı Adı" id="register-username">
-    <input type="email" placeholder="E-posta" id="register-email">
-    <input type="password" placeholder="Şifre" id="register-password">
+    <input type="text" placeholder="Kullanıcı Adı" id="register-username" />
+    <input type="email" placeholder="E-posta" id="register-email" />
+    <input type="password" placeholder="Şifre" id="register-password" />
     <div class="show-password">
-      <input type="checkbox" onclick="togglePassword('register-password')"> Şifreyi Göster
+      <input type="checkbox" onclick="togglePassword('register-password')" /> Şifreyi Göster
     </div>
-    <input type="file" id="register-profile" accept="image/*" onchange="previewProfile()">
-    <img id="profile-preview">
+
+    <input type="file" accept="image/*" id="profile-photo" onchange="previewPhoto()" />
+    <img id="profile-preview" alt="Profil Önizleme" />
+
     <button onclick="register()">Kayıt Ol</button>
     <span class="toggle-link" onclick="toggleForm()">Zaten hesabınız var mı? Giriş yap</span>
   </div>
 
   <script>
     function toggleForm() {
-      const login = document.getElementById('login-container');
-      const register = document.getElementById('register-container');
+      const login = document.getElementById("login-container");
+      const register = document.getElementById("register-container");
       login.style.display = login.style.display === "none" ? "block" : "none";
       register.style.display = register.style.display === "none" ? "block" : "none";
     }
@@ -157,49 +154,29 @@
     }
 
     function login() {
-      const username = document.getElementById('login-username').value;
-      const password = document.getElementById('login-password').value;
+      const username = document.getElementById("login-username").value;
+      const password = document.getElementById("login-password").value;
       alert(`Giriş yapılıyor...\nKullanıcı: ${username}`);
     }
 
     function register() {
-      const username = document.getElementById('register-username').value;
-      const email = document.getElementById('register-email').value;
-      const password = document.getElementById('register-password').value;
+      const username = document.getElementById("register-username").value;
+      const email = document.getElementById("register-email").value;
+      const password = document.getElementById("register-password").value;
       alert(`Kayıt olunuyor...\nKullanıcı: ${username}\nEmail: ${email}`);
     }
 
-    function previewProfile() {
-      const file = document.getElementById('register-profile').files[0];
-      const preview = document.getElementById('profile-preview');
-      const reader = new FileReader();
-      reader.onloadend = function() {
-        preview.src = reader.result;
-        preview.style.display = "block";
-      }
+    function previewPhoto() {
+      const file = document.getElementById("profile-photo").files[0];
+      const preview = document.getElementById("profile-preview");
       if (file) {
-        reader.readAsDataURL(file);
-      } else {
-        preview.src = "";
-        preview.style.display = "none";
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
       }
     }
 
     function toggleTheme() {
-      const body = document.body;
-      body.classList.toggle("light");
-      if (body.classList.contains("light")) {
-        localStorage.setItem("theme", "light");
-      } else {
-        localStorage.setItem("theme", "dark");
-      }
-    }
-
-    window.onload = () => {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme === "light") {
-        document.body.classList.add("light");
-      }
+      document.body.classList.toggle("light");
     }
   </script>
 </body>
