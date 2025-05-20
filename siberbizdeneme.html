@@ -4,30 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SiberBiz | Giriş & Kayıt</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: url('f5d7ee98-d5e6-4f05-8617-48d274daf8cd.png') no-repeat center center fixed;
+      background: url('625ced2c-546d-4886-9376-729cfbe40a06.png') no-repeat center center fixed;
       background-size: cover;
       color: white;
-      transition: background-color 0.5s, color 0.5s;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    .light {
+      background: #f0f0f0 url('625ced2c-546d-4886-9376-729cfbe40a06.png') no-repeat center center fixed;
+      background-size: cover;
+      color: black;
     }
 
     .container {
       max-width: 400px;
       margin: 60px auto;
       padding: 30px;
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.75);
       border-radius: 10px;
       text-align: center;
-      animation: fadeIn 0.5s ease-in-out;
+      transition: background-color 0.5s, box-shadow 0.5s;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .light .container {
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 15px #999;
     }
 
     h1 {
@@ -38,7 +43,8 @@
 
     input[type="text"],
     input[type="email"],
-    input[type="password"] {
+    input[type="password"],
+    input[type="file"] {
       width: 90%;
       padding: 10px;
       margin: 10px 0;
@@ -77,34 +83,40 @@
       margin-right: 5px;
     }
 
-    #password-strength {
-      height: 5px;
-      width: 90%;
-      margin: 5px auto;
-      background-color: #333;
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    #password-strength div {
-      height: 100%;
-      transition: width 0.3s ease-in-out;
-    }
-
-    .mode-switch {
+    .theme-toggle {
       position: absolute;
       top: 10px;
       right: 10px;
-      background: rgba(255,255,255,0.2);
+      background: black;
+      color: #00ffff;
       padding: 5px 10px;
-      border-radius: 5px;
+      border-radius: 10px;
       cursor: pointer;
+      border: 1px solid #00ffff;
+    }
+
+    .light .toggle-link,
+    .light .show-password {
+      color: #444;
+    }
+
+    .light .theme-toggle {
+      background: #333;
       color: white;
+    }
+
+    #profile-preview {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin: 10px auto;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="mode-switch" onclick="toggleTheme()">🌙 / ☀️</div>
+  <button class="theme-toggle" onclick="toggleTheme()">🌙 / ☀️</button>
 
   <div class="container" id="login-container">
     <h1>SiberBiz</h1>
@@ -113,7 +125,6 @@
     <div class="show-password">
       <input type="checkbox" onclick="togglePassword('login-password')"> Şifreyi Göster
     </div>
-    <label><input type="checkbox" id="remember-me"> Beni Hatırla</label>
     <button onclick="login()">Giriş Yap</button>
     <span class="toggle-link" onclick="toggleForm()">Hesabınız yok mu? Kayıt olun</span>
   </div>
@@ -122,22 +133,22 @@
     <h1>SiberBiz</h1>
     <input type="text" placeholder="Kullanıcı Adı" id="register-username">
     <input type="email" placeholder="E-posta" id="register-email">
-    <input type="password" placeholder="Şifre" id="register-password" oninput="checkStrength(this.value)">
-    <div id="password-strength"><div></div></div>
+    <input type="password" placeholder="Şifre" id="register-password">
     <div class="show-password">
       <input type="checkbox" onclick="togglePassword('register-password')"> Şifreyi Göster
     </div>
+    <input type="file" id="register-profile" accept="image/*" onchange="previewProfile()">
+    <img id="profile-preview">
     <button onclick="register()">Kayıt Ol</button>
     <span class="toggle-link" onclick="toggleForm()">Zaten hesabınız var mı? Giriş yap</span>
   </div>
 
   <script>
-    const loginContainer = document.getElementById('login-container');
-    const registerContainer = document.getElementById('register-container');
-
     function toggleForm() {
-      loginContainer.style.display = loginContainer.style.display === "none" ? "block" : "none";
-      registerContainer.style.display = registerContainer.style.display === "none" ? "block" : "none";
+      const login = document.getElementById('login-container');
+      const register = document.getElementById('register-container');
+      login.style.display = login.style.display === "none" ? "block" : "none";
+      register.style.display = register.style.display === "none" ? "block" : "none";
     }
 
     function togglePassword(id) {
@@ -145,70 +156,49 @@
       input.type = input.type === "password" ? "text" : "password";
     }
 
-    function checkStrength(password) {
-      const strength = document.querySelector('#password-strength div');
-      let score = 0;
-      if (password.length >= 6) score++;
-      if (/[A-Z]/.test(password)) score++;
-      if (/[0-9]/.test(password)) score++;
-      if (/[^A-Za-z0-9]/.test(password)) score++;
-      const colors = ["red", "orange", "yellow", "green"];
-      strength.style.width = (score * 25) + "%";
-      strength.style.backgroundColor = colors[score - 1] || "transparent";
-    }
-
     function login() {
       const username = document.getElementById('login-username').value;
       const password = document.getElementById('login-password').value;
-      const saved = JSON.parse(localStorage.getItem("users") || "[]");
-      const user = saved.find(u => u.username === username && u.password === password);
-      if (user) {
-        alert("Giriş Başarılı! Hoşgeldin " + username);
-        if (document.getElementById('remember-me').checked) {
-          localStorage.setItem("rememberedUser", username);
-        }
-      } else {
-        alert("Hatalı kullanıcı adı veya şifre.");
-      }
+      alert(`Giriş yapılıyor...\nKullanıcı: ${username}`);
     }
 
     function register() {
       const username = document.getElementById('register-username').value;
       const email = document.getElementById('register-email').value;
       const password = document.getElementById('register-password').value;
+      alert(`Kayıt olunuyor...\nKullanıcı: ${username}\nEmail: ${email}`);
+    }
 
-      if (!username || !email || !password) {
-        alert("Tüm alanlar doldurulmalı.");
-        return;
+    function previewProfile() {
+      const file = document.getElementById('register-profile').files[0];
+      const preview = document.getElementById('profile-preview');
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        preview.src = reader.result;
+        preview.style.display = "block";
       }
-      if (!email.includes('@') || !email.includes('.')) {
-        alert("Geçerli bir e-posta giriniz.");
-        return;
+      if (file) {
+        reader.readAsDataURL(file);
+      } else {
+        preview.src = "";
+        preview.style.display = "none";
       }
-
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
-      if (users.find(u => u.username === username)) {
-        alert("Bu kullanıcı adı zaten kullanımda.");
-        return;
-      }
-
-      users.push({ username, email, password });
-      localStorage.setItem("users", JSON.stringify(users));
-      alert("Kayıt başarılı! Artık giriş yapabilirsiniz.");
-      toggleForm();
     }
 
     function toggleTheme() {
-      const isDark = document.body.style.backgroundColor === "white";
-      document.body.style.backgroundColor = isDark ? "" : "white";
-      document.body.style.color = isDark ? "white" : "black";
+      const body = document.body;
+      body.classList.toggle("light");
+      if (body.classList.contains("light")) {
+        localStorage.setItem("theme", "light");
+      } else {
+        localStorage.setItem("theme", "dark");
+      }
     }
 
-    // Otomatik Giriş
-    window.onload = function() {
-      const remembered = localStorage.getItem("rememberedUser");
-      if (remembered) {
-        alert("Hoşgeldin tekrar, " + remembered);
+    window.onload = () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "light") {
+        document.body.classList.add("light");
       }
     }
   </script>
