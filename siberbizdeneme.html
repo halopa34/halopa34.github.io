@@ -6,7 +6,7 @@
   <title>SiberBiz | Giriş & Kayıt</title>
   <style>
     :root {
-      --bg-color: rgba(0, 0, 0, 0.75);
+      --bg-color: rgba(0, 0, 0, 0.8);
       --text-color: white;
       --button-color: #00ffff;
     }
@@ -17,13 +17,25 @@
       --button-color: #0077ff;
     }
 
-    body {
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
       margin: 0;
+      padding: 0;
       font-family: Arial, sans-serif;
-      background: url('spy.png') no-repeat center center fixed;
-      background-size: cover;
+      height: 100%;
+      overflow: hidden;
+      background: black;
       color: var(--text-color);
-      transition: all 0.3s ease;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
     }
 
     .container {
@@ -33,6 +45,8 @@
       background-color: var(--bg-color);
       border-radius: 10px;
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     h1 {
@@ -104,10 +118,13 @@
       border-radius: 20px;
       cursor: pointer;
       font-size: 14px;
+      z-index: 2;
     }
   </style>
 </head>
 <body class="dark">
+
+  <canvas id="matrix-canvas"></canvas>
 
   <button class="theme-toggle" onclick="toggleTheme()">🌗 Tema</button>
 
@@ -126,58 +143,5 @@
   <!-- Kayıt Formu -->
   <div class="container" id="register-container" style="display: none;">
     <h1>SiberBiz</h1>
-    <input type="text" placeholder="Kullanıcı Adı" id="register-username" />
-    <input type="email" placeholder="E-posta" id="register-email" />
-    <input type="password" placeholder="Şifre" id="register-password" />
-    <div class="show-password">
-      <input type="checkbox" onclick="togglePassword('register-password')" /> Şifreyi Göster
-    </div>
+    <input type="text" placeholder="Kullanıcı Adı"
 
-    <input type="file" accept="image/*" id="profile-photo" onchange="previewPhoto()" />
-    <img id="profile-preview" alt="Profil Önizleme" />
-
-    <button onclick="register()">Kayıt Ol</button>
-    <span class="toggle-link" onclick="toggleForm()">Zaten hesabınız var mı? Giriş yap</span>
-  </div>
-
-  <script>
-    function toggleForm() {
-      const login = document.getElementById("login-container");
-      const register = document.getElementById("register-container");
-      login.style.display = login.style.display === "none" ? "block" : "none";
-      register.style.display = register.style.display === "none" ? "block" : "none";
-    }
-
-    function togglePassword(id) {
-      const input = document.getElementById(id);
-      input.type = input.type === "password" ? "text" : "password";
-    }
-
-    function login() {
-      const username = document.getElementById("login-username").value;
-      const password = document.getElementById("login-password").value;
-      alert(`Giriş yapılıyor...\nKullanıcı: ${username}`);
-    }
-
-    function register() {
-      const username = document.getElementById("register-username").value;
-      const email = document.getElementById("register-email").value;
-      const password = document.getElementById("register-password").value;
-      alert(`Kayıt olunuyor...\nKullanıcı: ${username}\nEmail: ${email}`);
-    }
-
-    function previewPhoto() {
-      const file = document.getElementById("profile-photo").files[0];
-      const preview = document.getElementById("profile-preview");
-      if (file) {
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = "block";
-      }
-    }
-
-    function toggleTheme() {
-      document.body.classList.toggle("light");
-    }
-  </script>
-</body>
-</html>
